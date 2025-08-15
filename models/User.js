@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true, collection: 'users' }
+  { timestamps: true, collection: 'INFORMATION' }
 );
 
 // Ensure unique on id
