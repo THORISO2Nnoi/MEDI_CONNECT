@@ -1,4 +1,3 @@
-// server.js
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -15,11 +14,7 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-<<<<<<< HEAD
-=======
-  
->>>>>>> 1f1695f (Fix MongoDB database case conflict)
+    // useUnifiedTopology: true, // optional in newer mongoose versions
   })
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ DB Error:', err));
@@ -32,7 +27,6 @@ app.get('/api/health', (req, res) => {
 // --- Helpers ---
 const is13Digits = (s) => /^\d{13}$/.test(s);
 const parseDob = (dobStr) => {
-  // Expect "YYYY-MM-DD"
   const d = new Date(dobStr);
   if (Number.isNaN(d.getTime())) return null;
   return new Date(d.toISOString().substring(0, 10));
@@ -79,7 +73,7 @@ app.post('/api/add-user', async (req, res) => {
   }
 });
 
-// Get all users (optional filter by query)
+// Get all users (optional filter)
 app.get('/api/users', async (req, res) => {
   try {
     const { q } = req.query;
