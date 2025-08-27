@@ -50,6 +50,38 @@ app.post('/api/validate-id', async (req, res) => {
   }
 });
 
+// Verify user details
+app.post('/api/verify-user', async (req, res) => {
+  try {
+    const { id, firstName, lastName, dob } = req.body;
+
+    if (!is13Digits(id)) {
+      return res.status(400).json({ message: 'Invalid ID format.' });
+    }
+
+    const user = await User.findOne({ id });
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    // Check details
+    const dobDate = parseDob(dob);
+    if (!dobDate) return res.status(400).json({ message: 'Invalid DOB format.' });
+
+    // Force both DB values and user input to uppercase before comparing
+    if (
+      user.firstName.toUpperCase() !== firstName.toUpperCase() ||
+      user.lastName.toUpperCase() !== lastName.toUpperCase() ||
+      user.dob.toISOString().substring(0, 10) !== dobDate.toISOString().substring(0, 10)
+    ) {
+      return res.status(400).json({ message: 'Incorrect details provided.' });
+    }
+
+    res.json({ message: 'Details verified', user });
+  } catch (err) {
+    console.error('verify-user error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // Add user
 app.post('/api/add-user', async (req, res) => {
   try {
