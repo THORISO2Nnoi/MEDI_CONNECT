@@ -34,4 +34,4 @@ const UserSchema = new mongoose.Schema(
 // Ensure unique on id
 UserSchema.index({ id: 1 }, { unique: true });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', INFORMATION);
