@@ -22,16 +22,18 @@ const UserSchema = new mongoose.Schema(
       trim: true,
       set: v => (v || '').trim().toUpperCase(),
     },
-    // store DOB as ISO date; accepts "YYYY-MM-DD"
     dob: {
       type: Date,
       required: true,
     },
   },
-  { timestamps: true, collection: 'INFORMATION' }
+  { 
+    timestamps: true, 
+    collection: 'INFORMATION' // ✅ forces mongoose to use INFORMATION collection
+  }
 );
 
 // Ensure unique on id
 UserSchema.index({ id: 1 }, { unique: true });
 
-module.exports = mongoose.model('User', INFORMATION);
+module.exports = mongoose.model('User', UserSchema);
