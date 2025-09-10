@@ -1,4 +1,3 @@
-// models/User.js
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema(
@@ -27,9 +26,9 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { 
-    timestamps: true, 
-    collection: 'INFORMATION' // ✅ forces mongoose to use INFORMATION collection
+  {
+    timestamps: true,
+    collection: 'INFORMATION', // ✅ forces INFORMATION collection
   }
 );
 
