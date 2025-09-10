@@ -1,5 +1,5 @@
 {
-  "name": "medi_staff_backend",
+  "name": "medi_connect_backend",
   "version": "1.0.0",
   "main": "server.js",
   "type": "commonjs",
@@ -20,5 +20,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "Backend API for Medi_Connect app"
 }
