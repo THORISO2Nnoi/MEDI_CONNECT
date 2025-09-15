@@ -1,4 +1,3 @@
-// models/User.js
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema(
@@ -22,13 +21,15 @@ const UserSchema = new mongoose.Schema(
       trim: true,
       set: v => (v || '').trim().toUpperCase(),
     },
-    // store DOB as ISO date; accepts "YYYY-MM-DD"
     dob: {
       type: Date,
       required: true,
     },
   },
-  { timestamps: true, collection: 'INFORMATION' }
+  {
+    timestamps: true,
+    collection: 'INFORMATION', // ✅ forces INFORMATION collection
+  }
 );
 
 // Ensure unique on id
