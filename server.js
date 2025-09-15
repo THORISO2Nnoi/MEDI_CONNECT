@@ -23,7 +23,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 // --- Multer storage ---
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
+  destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
 const upload = multer({ storage });
@@ -51,30 +51,8 @@ app.get('/api/health', (req, res) => {
 });
 
 // --- Appointment Routes ---
-
-// Create new appointment
-app.post('/api/appointments', async (req, res) => {
-  try {
-    const appointment = new Appointment(req.body);
-    await appointment.save();
-    res.status(201).json({ message: 'Appointment created', appointment });
-  } catch (err) {
-    console.error('create appointment error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
-
-// Upload document
-app.post('/api/upload', upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.json({ url });
-  } catch (err) {
-    console.error('upload error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
+const appointmentRoutes = require('./routes/appointments');
+app.use('/api/appointments', appointmentRoutes);
 
 // --- User Routes ---
 
@@ -145,7 +123,7 @@ app.post('/api/add-user', async (req, res) => {
   }
 });
 
-// Get all users (optional filter)
+// Get all users
 app.get('/api/users', async (req, res) => {
   try {
     const { q } = req.query;
@@ -166,7 +144,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// Get one user by ID
+// Get one user
 app.get('/api/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
