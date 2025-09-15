@@ -2,7 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
+
 const User = require('./models/User');
+const Appointment = require('./models/Appointment');
 
 const app = express();
 
@@ -10,19 +15,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// --- Ensure uploads folder exists ---
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+// --- Multer storage ---
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+const upload = multer({ storage });
+
+// --- Serve uploaded files statically ---
+app.use('/uploads', express.static(uploadsDir));
+
 // --- DB Connect ---
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    // useUnifiedTopology: true, // optional in newer mongoose versions
-  })
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true })
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ DB Error:', err));
-
-// --- Health check ---
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
-});
 
 // --- Helpers ---
 const is13Digits = (s) => /^\d{13}$/.test(s);
@@ -32,7 +45,38 @@ const parseDob = (dobStr) => {
   return new Date(d.toISOString().substring(0, 10));
 };
 
-// --- Routes ---
+// --- Health check ---
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
+// --- Appointment Routes ---
+
+// Create new appointment
+app.post('/api/appointments', async (req, res) => {
+  try {
+    const appointment = new Appointment(req.body);
+    await appointment.save();
+    res.status(201).json({ message: 'Appointment created', appointment });
+  } catch (err) {
+    console.error('create appointment error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Upload document
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+    const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    res.json({ url });
+  } catch (err) {
+    console.error('upload error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// --- User Routes ---
 
 // Validate ID exists
 app.post('/api/validate-id', async (req, res) => {
@@ -55,18 +99,14 @@ app.post('/api/verify-user', async (req, res) => {
   try {
     const { id, firstName, lastName, dob } = req.body;
 
-    if (!is13Digits(id)) {
-      return res.status(400).json({ message: 'Invalid ID format.' });
-    }
+    if (!is13Digits(id)) return res.status(400).json({ message: 'Invalid ID format.' });
 
     const user = await User.findOne({ id });
     if (!user) return res.status(404).json({ message: 'User not found.' });
 
-    // Check details
     const dobDate = parseDob(dob);
     if (!dobDate) return res.status(400).json({ message: 'Invalid DOB format.' });
 
-    // Force both DB values and user input to uppercase before comparing
     if (
       user.firstName.toUpperCase() !== firstName.toUpperCase() ||
       user.lastName.toUpperCase() !== lastName.toUpperCase() ||
@@ -85,7 +125,7 @@ app.post('/api/verify-user', async (req, res) => {
 // Add user
 app.post('/api/add-user', async (req, res) => {
   try {
-    let { id, firstName, lastName, dob } = req.body;
+    const { id, firstName, lastName, dob } = req.body;
 
     if (!is13Digits(id)) return res.status(400).json({ message: 'Invalid ID format.' });
 
@@ -183,12 +223,12 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
-// Global error handler
+// --- Global error handler ---
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ message: 'Unexpected server error', error: err.message });
 });
 
-// Start server
+// --- Start server ---
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
