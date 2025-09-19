@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
 const appointmentSchema = new mongoose.Schema({
-  date: { type: String, required: true },
-  time: { type: String, required: true },
+  appointmentDate: { type: Date, required: true },
   fullName: { type: String, required: true },      // Patient's full name
   patientId: { type: String, required: true },
   contactType: { type: String, enum: ['Phone', 'Email'], required: true },

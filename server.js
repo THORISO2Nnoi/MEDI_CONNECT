@@ -45,6 +45,10 @@ const parseDob = (dobStr) => {
   return new Date(d.toISOString().substring(0, 10));
 };
 
+// --- Patient Records Routes ---
+const patientRoutes = require("./routes/patients");
+app.use("/patients", patientRoutes);
+
 // --- Health check ---
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

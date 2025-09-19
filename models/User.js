@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
       required: true,
       unique: true,
       match: [/^\d{13}$/, 'ID must be exactly 13 digits'],
-      index: true,
+      // index: true  <-- removed to avoid duplicate index
     },
     firstName: {
       type: String,
