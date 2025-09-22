@@ -1,36 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const Patient = require("../models/Patient");
+const Information = require("../models/Information");
 
-// POST /patients/:id/records
-router.post("/:id/records", async (req, res) => {
+// POST /patients/validate-id
+router.post("/validate-id", async (req, res) => {
   try {
-    const patientId = req.params.id;
-    const data = req.body;
+    const { id } = req.body;
 
-    let patient = await Patient.findOne({ patientId });
-    if (!patient) {
-      patient = new Patient({
-        patientId,
-        patientName: data.patientName,
-        appointments: []
-      });
-    }
+    if (!id || !/^\d{13}$/.test(id)) return res.status(400).json({ message: "Invalid ID format" });
 
-    const appointment = {
-      date: data.date,
-      diagnosis: data.diagnosis || "",
-      treatmentPlan: data.treatmentPlan || "",
-      prescriptions: data.prescriptions || "",
-      notes: data.notes || ""
-    };
+    const patient = await Information.findOne({ id });
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
 
-    patient.appointments.push(appointment);
-    await patient.save();
-
-    res.status(200).json({ message: "Record submitted successfully" });
+    res.json({ message: "Patient validated", patient });
   } catch (err) {
-    console.error("patients route error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });

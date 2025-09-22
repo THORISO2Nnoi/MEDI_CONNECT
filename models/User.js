@@ -1,38 +1,21 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
+const StaffSchema = new mongoose.Schema(
   {
-    id: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/^\d{13}$/, 'ID must be exactly 13 digits'],
-      // index: true  <-- removed to avoid duplicate index
-    },
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-      set: v => (v || '').trim().toUpperCase(),
-    },
-    lastName: {
-      type: String,
-      required: true,
-      trim: true,
-      set: v => (v || '').trim().toUpperCase(),
-    },
-    dob: {
-      type: Date,
-      required: true,
-    },
+    fullName: { type: String, required: true, trim: true },
+    role: { type: String, required: true, enum: ["Doctor", "Nurse"] },
+    specialization: { type: String },
+    qualifications: { type: String },
+    experience: { type: String },
+    hpcsa: { type: String },
+    location: { type: String },
+    languages: { type: [String], default: [] },
+    profilePic: { type: String },
   },
   {
     timestamps: true,
-    collection: 'INFORMATION', // ✅ forces INFORMATION collection
+    collection: "staff",
   }
 );
 
-// Ensure unique on id
-UserSchema.index({ id: 1 }, { unique: true });
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("Staff", StaffSchema);

@@ -1,23 +1,15 @@
 const mongoose = require('mongoose');
 
-const appointmentSchema = new mongoose.Schema({
-  appointmentDate: { type: Date, required: true },
-  fullName: { type: String, required: true },      // Patient's full name
-  patientId: { type: String, required: true },
-  contactType: { type: String, enum: ['Phone', 'Email'], required: true },
-  contactDetail: { type: String, required: true },
-  reason: { type: String, required: true },
-  consultationType: { type: String, enum: ['In-person', 'Telehealth'], required: true },
-  documentUrl: { type: String },
-
-  // 🟢 NEW FIELDS
-  status: {
-    type: String,
-    enum: ['Pending', 'Accepted', 'Declined'],
-    default: 'Pending'
+const AppointmentSchema = new mongoose.Schema(
+  {
+    patientId: { type: String, required: true },
+    doctorId: { type: String, required: true },
+    nurseId: { type: String },
+    dateTime: { type: Date, required: true },
+    reason: { type: String, default: '' },
+    status: { type: String, default: 'pending' }
   },
-  assignedTo: { type: String }, // Doctor/Nurse name or ID who accepted
+  { timestamps: true, collection: 'Appointments' }
+);
 
-}, { timestamps: true });
-
-module.exports = mongoose.model('Appointment', appointmentSchema);
+module.exports = mongoose.model('Appointment', AppointmentSchema);
