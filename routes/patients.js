@@ -38,7 +38,7 @@ router.post("/verify-user", async (req, res) => {
     // Compare trimmed, lowercase names
     const firstMatches = user.firstName?.trim().toLowerCase() === firstName?.trim().toLowerCase();
     const lastMatches = user.lastName?.trim().toLowerCase() === lastName?.trim().toLowerCase();
-    const dobMatches = user.dob?.trim() === dob?.trim(); // Ensure format matches YYYY-MM-DD
+    const dobMatches   = (user.dob       || "").trim() === (dob       || "").trim();
 
     if (firstMatches && lastMatches && dobMatches) {
       return res.json({ message: "User verified", user });
