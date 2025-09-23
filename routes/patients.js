@@ -18,4 +18,31 @@ router.post("/validate-id", async (req, res) => {
   }
 });
 
+// POST /patients/verify-user
+router.post("/verify-user", async (req, res) => {
+    try {
+        const { id, firstName, lastName, dob } = req.body;
+        const user = await User.findOne({ id });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check details
+        if (
+            user.firstName.toLowerCase() === firstName.toLowerCase() &&
+            user.lastName.toLowerCase() === lastName.toLowerCase() &&
+            user.dob === dob
+        ) {
+            return res.json({ message: "User verified", user });
+        } else {
+            return res.status(400).json({ message: "Incorrect details" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+
 module.exports = router;
