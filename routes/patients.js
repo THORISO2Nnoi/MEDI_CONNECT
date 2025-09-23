@@ -24,26 +24,25 @@ router.post("/validate-id", async (req, res) => {
 router.post("/verify-user", async (req, res) => {
   try {
     const { id, firstName, lastName, dob } = req.body;
-    const user = await Information.findOne({ id }); // use Information
+    const user = await Information.findOne({ id });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Check details
-    if (
-      user.firstName.toLowerCase() === firstName.toLowerCase() &&
-      user.lastName.toLowerCase() === lastName.toLowerCase() &&
-      user.dob === dob
-    ) {
+    // Ensure fields exist before comparing
+    const firstMatches = user.firstName?.toLowerCase() === firstName?.toLowerCase();
+    const lastMatches = user.lastName?.toLowerCase() === lastName?.toLowerCase();
+    const dobMatches = user.dob === dob;
+
+    if (firstMatches && lastMatches && dobMatches) {
       return res.json({ message: "User verified", user });
     } else {
       return res.status(400).json({ message: "Incorrect details" });
     }
   } catch (err) {
-    console.error(err);
+    console.error("Verify-user error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
 
 module.exports = router;
