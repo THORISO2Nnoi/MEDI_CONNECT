@@ -27,17 +27,16 @@ router.post("/verify-user", async (req, res) => {
     const user = await Information.findOne({ id });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Compare safely
     const firstMatches = user.firstName?.trim().toLowerCase() === firstName.trim().toLowerCase();
     const lastMatches = user.lastName?.trim().toLowerCase() === lastName.trim().toLowerCase();
-    const dobMatches = (user.dob || "").trim() === dob.trim();
+    const dobMatches = new Date(user.dob).toISOString().split("T")[0] === dob.trim();
 
     if (firstMatches && lastMatches && dobMatches) {
       res.json({ message: "User verified", user });
     } else {
       res.status(400).json({
         message: "Incorrect details",
-        expected: { firstName: user.firstName, lastName: user.lastName, dob: user.dob },
+        expected: { firstName: user.firstName, lastName: user.lastName, dob: user.dob.toISOString().split("T")[0] },
         received: { firstName, lastName, dob },
       });
     }
@@ -45,5 +44,6 @@ router.post("/verify-user", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
 
 module.exports = router;
