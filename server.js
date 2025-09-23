@@ -24,7 +24,7 @@ app.use("/uploads", express.static(uploadsDir));
 connectDB();
 
 // Routes
-app.use("/patients", patientRoutes);
+app.use("/api/patients", patientRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/auth", authRoutes);
 
