@@ -35,9 +35,9 @@ router.post("/verify-user", async (req, res) => {
     });
     console.log("Request values:", { firstName, lastName, dob });
 
-    // Compare trimmed, lowercase names
-    const firstMatches = user.firstName?.trim().toLowerCase() === firstName?.trim().toLowerCase();
-    const lastMatches = user.lastName?.trim().toLowerCase() === lastName?.trim().toLowerCase();
+    // Safe comparison for possibly null or undefined values
+    const firstMatches = (user.firstName || "").trim().toLowerCase() === (firstName || "").trim().toLowerCase();
+    const lastMatches  = (user.lastName  || "").trim().toLowerCase() === (lastName  || "").trim().toLowerCase();
     const dobMatches   = (user.dob       || "").trim() === (dob       || "").trim();
 
     if (firstMatches && lastMatches && dobMatches) {
